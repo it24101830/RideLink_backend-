@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: ride-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ride_db
+    username: ${DB_USERNAME:ridelink_user}
+    password: ${DB_PASSWORD:ridelink_pass}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: 8083
+
+jwt:
+  secret: ${JWT_SECRET:this-is-a-temporary-shared-secret-change-me-32chars}
+  expiration-ms: 3600000
+
+driver-service:
+  url: ${DRIVER_SERVICE_URL:http://localhost:8082}
+
+payment-service:
+  url: ${PAYMENT_SERVICE_URL:http://localhost:8084}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
