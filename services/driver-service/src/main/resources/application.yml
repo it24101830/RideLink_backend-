@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: driver-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/driver_db
+    username: ${DB_USERNAME:ridelink_user}
+    password: ${DB_PASSWORD:ridelink_pass}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: 8082
+
+jwt:
+  secret: ${JWT_SECRET:this-is-a-temporary-shared-secret-change-me-32chars}
+  expiration-ms: 3600000
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
