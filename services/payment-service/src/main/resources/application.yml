@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: payment-service
+  data:
+    mongodb:
+      uri: "${MONGODB_URI:mongodb+srv://it24101570_db_user:TIoIu4Mwc4BdyCUD@cluster0.twdgimz.mongodb.net/payment_db?retryWrites=true&w=majority&appName=Cluster0}"
+
+server:
+  port: 8084
+
+jwt:
+  secret: ${JWT_SECRET:this-is-a-temporary-shared-secret-change-me-32chars}
+  expiration-ms: 3600000
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html

@@ -1,0 +1,540 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+    "name": "RideLink Microservices Collection",
+    "description": "End-to-end API & Integration Test Collection for RideLink (Account, Driver, Ride, and Payment Services).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Account Service",
+      "item": [
+        {
+          "name": "Register Passenger",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201 or 409', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([201, 409]);",
+                  "});",
+                  "if (pm.response.code === 201) {",
+                  "    const json = pm.response.json();",
+                  "    pm.test('Response has no password field', function () {",
+                  "        pm.expect(json).to.not.have.property('password');",
+                  "        pm.expect(json).to.not.have.property('passwordHash');",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"kasun.silva@example.com\",\n  \"password\": \"Passenger123\",\n  \"fullName\": \"Kasun Silva\",\n  \"phone\": \"0771234567\",\n  \"role\": \"PASSENGER\"\n}"
+            },
+            "url": "{{baseUrlAccount}}/api/auth/register"
+          }
+        },
+        {
+          "name": "Login Passenger",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.environment.set('token', json.accessToken);",
+                  "pm.test('Token was captured', function () {",
+                  "    pm.expect(pm.environment.get('token')).to.not.be.empty;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"kasun.silva@example.com\",\n  \"password\": \"Passenger123\"\n}"
+            },
+            "url": "{{baseUrlAccount}}/api/auth/login"
+          }
+        },
+        {
+          "name": "Register Driver",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201 or 409', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([201, 409]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"nadeesha.perera@example.com\",\n  \"password\": \"Driver12345\",\n  \"fullName\": \"Nadeesha Perera\",\n  \"phone\": \"0779876543\",\n  \"role\": \"DRIVER\"\n}"
+            },
+            "url": "{{baseUrlAccount}}/api/auth/register"
+          }
+        },
+        {
+          "name": "Login Driver",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.environment.set('driverToken', json.accessToken);",
+                  "pm.test('Driver token was captured', function () {",
+                  "    pm.expect(pm.environment.get('driverToken')).to.not.be.empty;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"nadeesha.perera@example.com\",\n  \"password\": \"Driver12345\"\n}"
+            },
+            "url": "{{baseUrlAccount}}/api/auth/login"
+          }
+        },
+        {
+          "name": "Get My Profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "method": "GET",
+            "url": "{{baseUrlAccount}}/api/users/me"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Driver Service",
+      "item": [
+        {
+          "name": "Create Driver Profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "const json = pm.response.json();",
+                  "pm.environment.set('driverId', json.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{driverToken}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"licenseNumber\": \"B1234567\",\n  \"serviceArea\": \"Colombo07\"\n}"
+            },
+            "url": "{{baseUrlDriver}}/api/drivers"
+          }
+        },
+        {
+          "name": "Add Vehicle",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{driverToken}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"make\": \"Toyota\",\n  \"model\": \"Aqua\",\n  \"plateNumber\": \"CAB-1234\",\n  \"capacity\": 4,\n  \"category\": \"Sedan\"\n}"
+            },
+            "url": "{{baseUrlDriver}}/api/drivers/{{driverId}}/vehicles"
+          }
+        },
+        {
+          "name": "Set Driver Available",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Driver is available', () => pm.expect(pm.response.json().available).to.eql(true));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{driverToken}}", "type": "string" }]
+            },
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"available\": true\n}"
+            },
+            "url": "{{baseUrlDriver}}/api/drivers/{{driverId}}/availability"
+          }
+        },
+        {
+          "name": "Update Driver Location",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{driverToken}}", "type": "string" }]
+            },
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentLat\": 6.9271,\n  \"currentLng\": 79.8612,\n  \"serviceArea\": \"Colombo07\"\n}"
+            },
+            "url": "{{baseUrlDriver}}/api/drivers/{{driverId}}/location"
+          }
+        },
+        {
+          "name": "Get Eligible Drivers (Colombo07)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Response is an array', () => pm.expect(pm.response.json()).to.be.an('array'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "method": "GET",
+            "url": "{{baseUrlDriver}}/api/drivers/eligible?area=Colombo07"
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Ride Service (Full Lifecycle & Negative Scenarios)",
+      "item": [
+        {
+          "name": "1. Create Ride (REQUESTED)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Status is REQUESTED', () => pm.expect(pm.response.json().status).to.eql('REQUESTED'));",
+                  "pm.environment.set('rideId', pm.response.json().id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pickupLocation\": \"Liberty Plaza, Colombo 03\",\n  \"pickupArea\": \"Colombo07\",\n  \"dropoffLocation\": \"Bandaranaike International Airport\",\n  \"estimatedFare\": 1000\n}"
+            },
+            "url": "{{baseUrlRide}}/api/rides"
+          }
+        },
+        {
+          "name": "2. Assign Driver (Interservice Call -> Driver Service)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Status is ASSIGNED', () => pm.expect(pm.response.json().status).to.eql('ASSIGNED'));",
+                  "pm.test('Driver was assigned', () => pm.expect(pm.response.json().driverId).to.not.be.null);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "method": "POST",
+            "url": "{{baseUrlRide}}/api/rides/{{rideId}}/assign"
+          }
+        },
+        {
+          "name": "3. Accept Ride (ACCEPTED)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Status is ACCEPTED', () => pm.expect(pm.response.json().status).to.eql('ACCEPTED'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{driverToken}}", "type": "string" }]
+            },
+            "method": "PATCH",
+            "url": "{{baseUrlRide}}/api/rides/{{rideId}}/accept"
+          }
+        },
+        {
+          "name": "4. Start Ride (IN_PROGRESS)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Status is IN_PROGRESS', () => pm.expect(pm.response.json().status).to.eql('IN_PROGRESS'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{driverToken}}", "type": "string" }]
+            },
+            "method": "PATCH",
+            "url": "{{baseUrlRide}}/api/rides/{{rideId}}/start"
+          }
+        },
+        {
+          "name": "5. Complete Ride (Interservice Call -> Payment Service)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Status is COMPLETED', () => pm.expect(pm.response.json().status).to.eql('COMPLETED'));",
+                  "pm.test('Final fare calculated (1000.0)', () => pm.expect(pm.response.json().finalFare).to.eql(1000));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{driverToken}}", "type": "string" }]
+            },
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"distanceKm\": 8.5,\n  \"durationMin\": 22\n}"
+            },
+            "url": "{{baseUrlRide}}/api/rides/{{rideId}}/complete"
+          }
+        },
+        {
+          "name": "6. Negative: Complete Ride Twice (Expect 409 Conflict)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 409 Conflict', () => pm.response.to.have.status(409));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{driverToken}}", "type": "string" }]
+            },
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"distanceKm\": 8.5,\n  \"durationMin\": 22\n}"
+            },
+            "url": "{{baseUrlRide}}/api/rides/{{rideId}}/complete"
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Payment Service",
+      "item": [
+        {
+          "name": "Calculate Fare Estimate (1000.0 LKR)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Fare matches formula (1000)', () => pm.expect(pm.response.json().estimatedFare).to.eql(1000));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pickupLocation\": \"Liberty Plaza, Colombo 03\",\n  \"dropoffLocation\": \"Bandaranaike International Airport\",\n  \"distanceKm\": 8.5,\n  \"durationMin\": 22\n}"
+            },
+            "url": "{{baseUrlPayment}}/api/fare-estimates"
+          }
+        },
+        {
+          "name": "Calculate Fare Estimate - Minimum Floor (250.0 LKR)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Minimum fare applied (250)', () => pm.expect(pm.response.json().estimatedFare).to.eql(250));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pickupLocation\": \"A\",\n  \"dropoffLocation\": \"B\",\n  \"distanceKm\": 0.1,\n  \"durationMin\": 0.1\n}"
+            },
+            "url": "{{baseUrlPayment}}/api/fare-estimates"
+          }
+        },
+        {
+          "name": "Get Receipt for Completed Ride",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Breakdown adds up correctly', () => {",
+                  "    const b = pm.response.json().breakdown;",
+                  "    pm.expect(b.baseFare + b.distanceCharge + b.durationCharge).to.eql(b.total);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "method": "GET",
+            "url": "{{baseUrlPayment}}/api/receipts/{{rideId}}"
+          }
+        }
+      ]
+    }
+  ]
+}
