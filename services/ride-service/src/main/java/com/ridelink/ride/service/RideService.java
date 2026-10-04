@@ -99,6 +99,12 @@ public class RideService {
 
     public RideResponse getRide(String rideId, String callerUserId) {
         Ride ride = findById(rideId);
+        if (callerUserId != null
+                && !callerUserId.equals(ride.getPassengerId())
+                && !callerUserId.equals(ride.getDriverId())
+                && !driverClient.isDriverOwnedByUser(ride.getDriverId(), callerUserId)) {
+            throw new ForbiddenException("You do not have access to this ride");
+        }
         return toResponse(ride);
     }
 
@@ -130,7 +136,9 @@ public class RideService {
 
     private Ride findAndCheckDriverOwnership(String rideId, String callerUserId) {
         Ride ride = findById(rideId);
-        if (ride.getDriverId() == null) {
+        if (ride.getDriverId() == null ||
+                (!ride.getDriverId().equals(callerUserId)
+                 && !driverClient.isDriverOwnedByUser(ride.getDriverId(), callerUserId))) {
             throw new ForbiddenException("You are not the assigned driver for this ride");
         }
         return ride;

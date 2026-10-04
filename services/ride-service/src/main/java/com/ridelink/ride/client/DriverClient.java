@@ -33,4 +33,30 @@ public class DriverClient {
             throw new ServiceUnavailableException("Driver service is unreachable");
         }
     }
+
+    public boolean isDriverOwnedByUser(String driverProfileId, String callerUserId) {
+        if (driverProfileId == null || callerUserId == null) {
+            return false;
+        }
+        try {
+            org.springframework.web.context.request.RequestAttributes attrs =
+                org.springframework.web.context.request.RequestContextHolder.getRequestAttributes();
+            if (!(attrs instanceof org.springframework.web.context.request.ServletRequestAttributes servletAttrs)) {
+                return false;
+            }
+            String authHeader = servletAttrs.getRequest().getHeader(HttpHeaders.AUTHORIZATION);
+            if (authHeader == null || authHeader.isBlank()) {
+                return false;
+            }
+            java.util.Map<?, ?> profile = driverServiceClient.get()
+                .uri("/api/drivers/{id}", driverProfileId)
+                .header(HttpHeaders.AUTHORIZATION, authHeader)
+                .retrieve()
+                .bodyToMono(java.util.Map.class)
+                .block();
+            return profile != null && callerUserId.equals(profile.get("userId"));
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }
